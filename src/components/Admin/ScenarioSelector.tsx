@@ -1,0 +1,50 @@
+import { scenarios } from '@/data/scenarios';
+import { useGameStore } from '@/store/gameStore';
+import { useStockStore } from '@/store/stockStore';
+import { usePlayerStore } from '@/store/playerStore';
+import { Button } from '@/components/UI/Button';
+
+export function ScenarioSelector() {
+  const { config, updateConfig } = useGameStore();
+  const { initializeStocks } = useStockStore();
+  const { resetAllPlayers } = usePlayerStore();
+
+  const handleSelectScenario = async (scenarioId: string) => {
+    await updateConfig({
+      scenarioId,
+      currentRound: 0,
+      phase: 'waiting',
+      totalRounds: scenarios.find((s) => s.id === scenarioId)?.rounds.length || 6,
+    });
+    await initializeStocks();
+    await resetAllPlayers(config.startingCash);
+  };
+
+  return (
+    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm space-y-3">
+      <h2 className="text-lg font-bold">시나리오 선택</h2>
+      <div className="space-y-2">
+        {scenarios.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => handleSelectScenario(s.id)}
+            className={`w-full text-left p-3 rounded-lg border transition-colors ${
+              config.scenarioId === s.id
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <p className="font-medium text-sm">{s.name}</p>
+            <p className="text-xs text-gray-500 mt-1">{s.description}</p>
+            <p className="text-xs text-gray-400 mt-1">{s.rounds.length}라운드</p>
+          </button>
+        ))}
+      </div>
+      {config.scenarioId && config.phase === 'waiting' && config.currentRound === 0 && (
+        <Button variant="secondary" className="w-full" onClick={() => initializeStocks()}>
+          종목 초기화
+        </Button>
+      )}
+    </div>
+  );
+}
