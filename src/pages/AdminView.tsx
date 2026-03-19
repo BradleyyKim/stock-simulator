@@ -8,12 +8,26 @@ import { StudentStatusList } from '@/components/Admin/StudentStatusList';
 import { LeaderboardControl } from '@/components/Admin/LeaderboardControl';
 import { Button } from '@/components/UI/Button';
 
+const ADMIN_PIN = '930919';
+
 export function AdminView() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [adminPin, setAdminPin] = useState('');
+  const [pinError, setPinError] = useState('');
   const [showPlayerSetup, setShowPlayerSetup] = useState(false);
   const [playerInput, setPlayerInput] = useState('');
   const { initializePlayers } = usePlayerStore();
   const { config } = useGameStore();
   const navigate = useNavigate();
+
+  const handleAdminLogin = () => {
+    if (adminPin === ADMIN_PIN) {
+      setAuthenticated(true);
+      setPinError('');
+    } else {
+      setPinError('비밀번호가 일치하지 않습니다.');
+    }
+  };
 
   const handleInitPlayers = async () => {
     const lines = playerInput.trim().split('\n').filter(Boolean);
@@ -25,6 +39,38 @@ export function AdminView() {
     setShowPlayerSetup(false);
     setPlayerInput('');
   };
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center px-4">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">관리자 인증</h1>
+            <p className="text-gray-500 text-sm">관리자 비밀번호를 입력해주세요</p>
+          </div>
+          <div className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+            <input
+              type="password"
+              value={adminPin}
+              onChange={(e) => setAdminPin(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
+              placeholder="비밀번호"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-center text-xl tracking-[0.3em] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {pinError && <p className="text-red-500 text-sm text-center">{pinError}</p>}
+            <Button onClick={handleAdminLogin} className="w-full" size="lg">
+              입장하기
+            </Button>
+          </div>
+          <div className="text-center mt-4">
+            <button onClick={() => navigate('/')} className="text-sm text-gray-400 hover:text-gray-600">
+              돌아가기
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

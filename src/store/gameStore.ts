@@ -20,6 +20,7 @@ interface HintState {
   hint2: string;
   hint3: string;
   visibleHints: number;
+  analysis: string;
 }
 
 interface GameState {
@@ -34,12 +35,13 @@ interface GameState {
   setPhase: (phase: GameConfig['phase']) => Promise<void>;
   setHints: (hints: Partial<HintState>) => Promise<void>;
   revealNextHint: () => Promise<void>;
+  resetCurrentRound: () => Promise<void>;
   toggleLeaderboard: () => Promise<void>;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
   config: DEFAULT_CONFIG,
-  hints: { hint1: '', hint2: '', hint3: '', visibleHints: 0 },
+  hints: { hint1: '', hint2: '', hint3: '', visibleHints: 0, analysis: '' },
   isLoading: true,
 
   subscribe: () => {
@@ -102,6 +104,21 @@ export const useGameStore = create<GameState>((set, get) => ({
     const { hints } = get();
     const next = Math.min(hints.visibleHints + 1, 3);
     await update(ref(db, 'hints'), { visibleHints: next });
+  },
+
+  resetCurrentRound: async () => {
+    const { config } = get();
+    await update(ref(db, 'game'), {
+      currentRound: Math.max(0, config.currentRound - 1),
+      phase: 'waiting',
+    });
+    await update(ref(db, 'hints'), {
+      hint1: '',
+      hint2: '',
+      hint3: '',
+      visibleHints: 0,
+      analysis: '',
+    });
   },
 
   toggleLeaderboard: async () => {

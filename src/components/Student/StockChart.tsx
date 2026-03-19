@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createChart, type IChartApi } from 'lightweight-charts';
 import { useStockStore } from '@/store/stockStore';
-import { SECTOR_COLORS } from '@/data/scenarios';
+import { SECTOR_COLORS, SECTOR_ICONS } from '@/data/scenarios';
 
 interface StockChartProps {
   stockId: string;
@@ -79,9 +79,11 @@ export function StockChart({ stockId }: StockChartProps) {
     <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
         <div
-          className="w-6 h-6 rounded-full"
+          className="w-6 h-6 rounded-full flex items-center justify-center text-white"
           style={{ backgroundColor: SECTOR_COLORS[stock.sector] }}
-        />
+        >
+          {(() => { const Icon = SECTOR_ICONS[stock.sector]; return Icon ? <Icon size={14} /> : null; })()}
+        </div>
         <h3 className="font-semibold">{stock.name} 차트</h3>
       </div>
       <div ref={chartContainerRef} />

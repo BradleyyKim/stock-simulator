@@ -14,7 +14,7 @@ interface PlayerState {
   updatePlayerCash: (playerId: string, amount: number) => Promise<void>;
   updatePlayerHolding: (playerId: string, stockId: string, quantityDelta: number) => Promise<void>;
   recalculateTotalAssets: (playerId: string, stockPrices: Record<string, number>) => Promise<void>;
-  recalculateAllAssets: (stockPrices: Record<string, number>) => Promise<void>;
+  recalculateAllAssets: (stockPrices: Record<string, number>, round: number) => Promise<void>;
   resetAllPlayers: (startingCash: number) => Promise<void>;
 }
 
@@ -75,6 +75,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         cash: 100000,
         holdings: {},
         totalAssets: 100000,
+        assetHistory: [{ round: 0, totalAssets: 100000 }],
         isOnline: false,
       };
     });
@@ -100,7 +101,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (!player) return;
 
     let total = player.cash;
-    for (const [stockId, qty] of Object.entries(player.holdings)) {
+    for (const [stockId, qty] of Object.entries(player.holdings || {})) {
       if (stockPrices[stockId]) {
         total += qty * stockPrices[stockId];
       }
@@ -108,18 +109,20 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     await update(ref(db, `players/${playerId}`), { totalAssets: total });
   },
 
-  recalculateAllAssets: async (stockPrices) => {
+  recalculateAllAssets: async (stockPrices, round) => {
     const { players } = get();
     const updates: Record<string, unknown> = {};
 
     for (const player of Object.values(players)) {
       let total = player.cash;
-      for (const [stockId, qty] of Object.entries(player.holdings)) {
+      for (const [stockId, qty] of Object.entries(player.holdings || {})) {
         if (stockPrices[stockId]) {
           total += qty * stockPrices[stockId];
         }
       }
       updates[`players/${player.id}/totalAssets`] = total;
+      const history = [...(player.assetHistory || []), { round, totalAssets: total }];
+      updates[`players/${player.id}/assetHistory`] = history;
     }
     await update(ref(db), updates);
   },
@@ -132,6 +135,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       updates[`players/${player.id}/cash`] = startingCash;
       updates[`players/${player.id}/holdings`] = {};
       updates[`players/${player.id}/totalAssets`] = startingCash;
+      updates[`players/${player.id}/assetHistory`] = [{ round: 0, totalAssets: startingCash }];
     }
     await update(ref(db), updates);
   },

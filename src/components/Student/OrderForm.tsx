@@ -30,7 +30,7 @@ export function OrderForm({ stockId, onClose }: OrderFormProps) {
 
   const totalCost = stock.currentPrice * quantity;
   const maxBuy = Math.floor(currentPlayer.cash / stock.currentPrice);
-  const maxSell = currentPlayer.holdings[stock.id] || 0;
+  const maxSell = currentPlayer.holdings?.[stock.id] || 0;
   const maxQuantity = orderType === 'buy' ? maxBuy : maxSell;
   const canTrade = config.phase === 'trading';
 

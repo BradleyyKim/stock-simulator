@@ -79,14 +79,6 @@ export function LoginPage() {
           </Button>
         </div>
 
-        <div className="text-center mt-6">
-          <button
-            onClick={() => navigate('/admin')}
-            className="text-sm text-gray-400 hover:text-gray-600"
-          >
-            관리자 입장
-          </button>
-        </div>
       </div>
     </div>
   );

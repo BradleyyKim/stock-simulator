@@ -15,6 +15,11 @@ export interface PricePoint {
   close: number;
 }
 
+export interface AssetSnapshot {
+  round: number;
+  totalAssets: number;
+}
+
 export interface Player {
   id: string;
   name: string;
@@ -22,6 +27,7 @@ export interface Player {
   cash: number;
   holdings: Record<string, number>;
   totalAssets: number;
+  assetHistory: AssetSnapshot[];
   isOnline: boolean;
 }
 
@@ -63,6 +69,7 @@ export interface ScenarioRound {
   hint1?: string;
   hint2?: string;
   hint3?: string;
+  analysis?: string;
   priceChanges: Record<string, number>;
 }
 

@@ -1,11 +1,25 @@
 import { usePlayerStore } from '@/store/playerStore';
+import { useStockStore } from '@/store/stockStore';
 import { formatCurrency } from '@/utils/format';
 import { cn } from '@/utils/cn';
 
 export function StudentStatusList() {
   const { players } = usePlayerStore();
+  const { stocks } = useStockStore();
 
-  const sorted = Object.values(players).sort((a, b) => b.totalAssets - a.totalAssets);
+  const calcTotalAssets = (player: typeof players[string]) => {
+    let total = player.cash;
+    for (const [stockId, qty] of Object.entries(player.holdings || {})) {
+      if (stocks[stockId]) {
+        total += qty * stocks[stockId].currentPrice;
+      }
+    }
+    return total;
+  };
+
+  const sorted = Object.values(players)
+    .map((p) => ({ ...p, totalAssets: calcTotalAssets(p) }))
+    .sort((a, b) => b.totalAssets - a.totalAssets);
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">

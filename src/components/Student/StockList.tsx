@@ -1,5 +1,5 @@
 import { useStockStore } from '@/store/stockStore';
-import { SECTOR_COLORS } from '@/data/scenarios';
+import { SECTOR_COLORS, SECTOR_ICONS } from '@/data/scenarios';
 import { formatCurrency, formatPercent } from '@/utils/format';
 import { cn } from '@/utils/cn';
 import { Badge } from '@/components/UI/Badge';
@@ -28,10 +28,10 @@ export function StockList({ onSelectStock }: StockListProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white"
                   style={{ backgroundColor: SECTOR_COLORS[stock.sector] }}
                 >
-                  {stock.name[0]}
+                  {(() => { const Icon = SECTOR_ICONS[stock.sector]; return Icon ? <Icon size={20} /> : stock.name[0]; })()}
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">{stock.name}</p>

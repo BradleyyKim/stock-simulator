@@ -6,7 +6,7 @@ import { Badge } from '@/components/UI/Badge';
 import { scenarios } from '@/data/scenarios';
 
 export function RoundControl() {
-  const { config, startRound, endRound, nextRound, revealNextHint, setHints, hints } = useGameStore();
+  const { config, startRound, endRound, nextRound, revealNextHint, setHints, hints, resetCurrentRound } = useGameStore();
   const { applyPriceChanges } = useStockStore();
   const { recalculateAllAssets } = usePlayerStore();
   const { stocks } = useStockStore();
@@ -39,6 +39,7 @@ export function RoundControl() {
         hint2: nextScenarioRound.hint2 || '',
         hint3: nextScenarioRound.hint3 || '',
         visibleHints: 0,
+        analysis: '',
       });
     }
   };
@@ -51,7 +52,10 @@ export function RoundControl() {
         const change = currentScenarioRound.priceChanges[id] || 0;
         stockPrices[id] = Math.round(stock.currentPrice * (1 + change));
       }
-      await recalculateAllAssets(stockPrices);
+      await recalculateAllAssets(stockPrices, config.currentRound);
+      if (currentScenarioRound.analysis) {
+        await setHints({ analysis: currentScenarioRound.analysis });
+      }
     }
     await endRound();
   };
@@ -93,6 +97,14 @@ export function RoundControl() {
             </Button>
             <Button onClick={handleEndRound} variant="danger" className="w-full">
               거래 마감 및 결과 반영
+            </Button>
+            <Button
+              onClick={() => { if (window.confirm('현재 라운드를 초기화하시겠습니까?\n학생 화면의 뉴스가 모두 사라집니다.')) resetCurrentRound(); }}
+              variant="ghost"
+              size="sm"
+              className="w-full text-gray-400"
+            >
+              라운드 초기화
             </Button>
           </>
         )}

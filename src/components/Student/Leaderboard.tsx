@@ -1,4 +1,5 @@
 import { usePlayerStore } from '@/store/playerStore';
+import { useStockStore } from '@/store/stockStore';
 import { useGameStore } from '@/store/gameStore';
 import { formatCurrency } from '@/utils/format';
 import { Card } from '@/components/UI/Card';
@@ -6,6 +7,7 @@ import { cn } from '@/utils/cn';
 
 export function Leaderboard() {
   const { players, currentPlayer } = usePlayerStore();
+  const { stocks } = useStockStore();
   const { config } = useGameStore();
 
   if (!config.leaderboardVisible) {
@@ -18,7 +20,19 @@ export function Leaderboard() {
     );
   }
 
+  // 현재 주가 기준으로 총 자산을 실시간 계산
+  const calcTotalAssets = (player: typeof players[string]) => {
+    let total = player.cash;
+    for (const [stockId, qty] of Object.entries(player.holdings || {})) {
+      if (stocks[stockId]) {
+        total += qty * stocks[stockId].currentPrice;
+      }
+    }
+    return total;
+  };
+
   const sorted = Object.values(players)
+    .map((p) => ({ ...p, totalAssets: calcTotalAssets(p) }))
     .sort((a, b) => b.totalAssets - a.totalAssets)
     .map((p, i) => ({ ...p, rank: i + 1 }));
 
