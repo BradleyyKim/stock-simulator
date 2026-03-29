@@ -13,6 +13,8 @@ const DEFAULT_CONFIG: GameConfig = {
   roundDuration: 0,
   maxOrdersPerRound: 0,
   session: 1,
+  roundAllowance: 100000,
+  intelPrices: { A: 5000, B: 3000, C: 1000 },
 };
 
 interface HintState {

@@ -1,3 +1,9 @@
+export interface IntelItem {
+  id: string;
+  grade: 'A' | 'B' | 'C';
+  content: string;
+}
+
 export interface Stock {
   id: string;
   name: string;
@@ -29,6 +35,7 @@ export interface Player {
   totalAssets: number;
   assetHistory: AssetSnapshot[];
   isOnline: boolean;
+  purchasedIntels?: string[];
 }
 
 export interface Order {
@@ -54,6 +61,8 @@ export interface GameConfig {
   roundDuration: number;
   maxOrdersPerRound: number;
   session: number;
+  roundAllowance: number;
+  intelPrices: { A: number; B: number; C: number };
 }
 
 export interface Scenario {
@@ -71,6 +80,8 @@ export interface ScenarioRound {
   hint3?: string;
   analysis?: string;
   priceChanges: Record<string, number>;
+  intels?: IntelItem[];
+  dateRange?: { start: string; end: string };
 }
 
 export interface SessionResult {

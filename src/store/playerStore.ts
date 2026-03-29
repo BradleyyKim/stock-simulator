@@ -16,6 +16,8 @@ interface PlayerState {
   recalculateTotalAssets: (playerId: string, stockPrices: Record<string, number>) => Promise<void>;
   recalculateAllAssets: (stockPrices: Record<string, number>, round: number) => Promise<void>;
   resetAllPlayers: (startingCash: number) => Promise<void>;
+  addAllowanceToAll: (amount: number) => Promise<void>;
+  purchaseIntel: (playerId: string, intelKey: string, cost: number) => Promise<{ success: boolean; message: string }>;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -138,5 +140,30 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       updates[`players/${player.id}/assetHistory`] = [{ round: 0, totalAssets: startingCash }];
     }
     await update(ref(db), updates);
+  },
+
+  addAllowanceToAll: async (amount) => {
+    const { players } = get();
+    const updates: Record<string, unknown> = {};
+    for (const player of Object.values(players)) {
+      updates[`players/${player.id}/cash`] = player.cash + amount;
+      updates[`players/${player.id}/totalAssets`] = player.totalAssets + amount;
+    }
+    await update(ref(db), updates);
+  },
+
+  purchaseIntel: async (playerId, intelKey, cost) => {
+    const player = get().players[playerId];
+    if (!player) return { success: false, message: '플레이어를 찾을 수 없습니다.' };
+    if (player.cash < cost) return { success: false, message: '현금이 부족합니다.' };
+
+    const purchased = player.purchasedIntels || [];
+    if (purchased.includes(intelKey)) return { success: false, message: '이미 구매한 정보입니다.' };
+
+    await update(ref(db, `players/${playerId}`), {
+      cash: player.cash - cost,
+      purchasedIntels: [...purchased, intelKey],
+    });
+    return { success: true, message: '정보를 구매했습니다.' };
   },
 }));

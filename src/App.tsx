@@ -7,12 +7,14 @@ import { useGameStore } from '@/store/gameStore';
 import { useStockStore } from '@/store/stockStore';
 import { usePlayerStore } from '@/store/playerStore';
 import { useOrderStore } from '@/store/orderStore';
+import { useScenarioStore } from '@/store/scenarioStore';
 
 function AppContent() {
   const subscribeGame = useGameStore((s) => s.subscribe);
   const subscribeStocks = useStockStore((s) => s.subscribe);
   const subscribePlayers = usePlayerStore((s) => s.subscribe);
   const subscribeOrders = useOrderStore((s) => s.subscribe);
+  const subscribeScenarios = useScenarioStore((s) => s.subscribe);
 
   useEffect(() => {
     const unsubs = [
@@ -20,9 +22,10 @@ function AppContent() {
       subscribeStocks(),
       subscribePlayers(),
       subscribeOrders(),
+      subscribeScenarios(),
     ];
     return () => unsubs.forEach((fn) => fn());
-  }, [subscribeGame, subscribeStocks, subscribePlayers, subscribeOrders]);
+  }, [subscribeGame, subscribeStocks, subscribePlayers, subscribeOrders, subscribeScenarios]);
 
   return (
     <Routes>
