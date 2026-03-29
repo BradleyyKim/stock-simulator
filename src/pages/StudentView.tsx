@@ -8,14 +8,16 @@ import { Leaderboard } from '@/components/Student/Leaderboard';
 import { StockDetail } from '@/components/Student/StockDetail';
 import { HintPanel } from '@/components/Student/HintPanel';
 import { GameEventNotification, type Notification } from '@/components/Student/GameEventNotification';
+import { IntelMarket } from '@/components/Student/IntelMarket';
 import { TabBar } from '@/components/UI/TabBar';
 import { Badge } from '@/components/UI/Badge';
 import { formatCurrency } from '@/utils/format';
-import { BarChart3, Briefcase, Trophy } from 'lucide-react';
+import { BarChart3, Briefcase, Trophy, Store } from 'lucide-react';
 
 export function StudentView() {
   const [activeTab, setActiveTab] = useState('stocks');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [showIntelMarket, setShowIntelMarket] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
   const { currentPlayer, logout } = usePlayerStore();
   const { config, hints } = useGameStore();
@@ -88,6 +90,7 @@ export function StudentView() {
 
   const tabs = [
     { id: 'stocks', label: '종목', icon: <BarChart3 size={20} /> },
+    { id: 'intel', label: '거래소', icon: <Store size={20} /> },
     { id: 'portfolio', label: '내 자산', icon: <Briefcase size={20} /> },
     { id: 'leaderboard', label: '순위', icon: <Trophy size={20} /> },
   ];
@@ -127,8 +130,17 @@ export function StudentView() {
       {/* Stock Detail Modal */}
       <StockDetail stockId={selectedStock} onClose={() => setSelectedStock(null)} />
 
+      {/* Intel Market Modal */}
+      <IntelMarket isOpen={showIntelMarket} onClose={() => { setShowIntelMarket(false); setActiveTab('stocks'); }} />
+
       {/* Tab Bar */}
-      <TabBar tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      <TabBar tabs={tabs} activeTab={activeTab} onTabChange={(id) => {
+        if (id === 'intel') {
+          setShowIntelMarket(true);
+        } else {
+          setActiveTab(id);
+        }
+      }} />
 
       {/* Game Event Notification */}
       <GameEventNotification notification={notification} onDismiss={() => setNotification(null)} />
