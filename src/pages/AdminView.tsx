@@ -6,6 +6,10 @@ import { RoundControl } from '@/components/Admin/RoundControl';
 import { ScenarioSelector } from '@/components/Admin/ScenarioSelector';
 import { StudentStatusList } from '@/components/Admin/StudentStatusList';
 import { LeaderboardControl } from '@/components/Admin/LeaderboardControl';
+import { GameSettings } from '@/components/Admin/GameSettings';
+import { ScenarioManager } from '@/components/Admin/ScenarioManager';
+import { RealDataImport } from '@/components/Admin/RealDataImport';
+import { ContentEditor } from '@/components/Admin/ContentEditor';
 import { Button } from '@/components/UI/Button';
 
 const ADMIN_PIN = '930919';
@@ -16,6 +20,7 @@ export function AdminView() {
   const [pinError, setPinError] = useState('');
   const [showPlayerSetup, setShowPlayerSetup] = useState(false);
   const [playerInput, setPlayerInput] = useState('');
+  const [adminTab, setAdminTab] = useState<'operation' | 'content' | 'settings'>('operation');
   const { initializePlayers } = usePlayerStore();
   const { config } = useGameStore();
   const navigate = useNavigate();
@@ -90,6 +95,33 @@ export function AdminView() {
             </Button>
           </div>
         </div>
+        {/* Tabs */}
+        <div className="flex gap-1 mt-3 max-w-7xl mx-auto">
+          <button
+            onClick={() => setAdminTab('operation')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-t-lg transition-colors ${
+              adminTab === 'operation' ? 'bg-gray-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            운영
+          </button>
+          <button
+            onClick={() => setAdminTab('content')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-t-lg transition-colors ${
+              adminTab === 'content' ? 'bg-gray-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            콘텐츠
+          </button>
+          <button
+            onClick={() => setAdminTab('settings')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-t-lg transition-colors ${
+              adminTab === 'settings' ? 'bg-gray-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            설정
+          </button>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto p-6">
@@ -110,20 +142,32 @@ export function AdminView() {
           </div>
         )}
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Controls */}
-          <div className="space-y-6">
-            <ScenarioSelector />
-            <RoundControl />
-            <LeaderboardControl />
+        {adminTab === 'operation' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
+              <ScenarioSelector />
+              <RoundControl />
+              <LeaderboardControl />
+            </div>
+            <div className="lg:col-span-2">
+              <StudentStatusList />
+            </div>
           </div>
-
-          {/* Right: Student Status */}
-          <div className="lg:col-span-2">
-            <StudentStatusList />
+        )}
+        {adminTab === 'content' && (
+          <div className="max-w-3xl">
+            <ContentEditor />
           </div>
-        </div>
+        )}
+        {adminTab === 'settings' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <GameSettings />
+              <RealDataImport />
+            </div>
+            <ScenarioManager />
+          </div>
+        )}
       </div>
     </div>
   );

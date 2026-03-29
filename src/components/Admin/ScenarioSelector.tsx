@@ -1,13 +1,16 @@
-import { scenarios } from '@/data/scenarios';
+import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { useStockStore } from '@/store/stockStore';
 import { usePlayerStore } from '@/store/playerStore';
+import { useScenarioStore } from '@/store/scenarioStore';
 import { Button } from '@/components/UI/Button';
 
 export function ScenarioSelector() {
   const { config, updateConfig } = useGameStore();
   const { initializeStocks } = useStockStore();
   const { resetAllPlayers } = usePlayerStore();
+  const { scenarios } = useScenarioStore();
+  const [continueMode, setContinueMode] = useState(false);
 
   const handleSelectScenario = async (scenarioId: string) => {
     await updateConfig({
@@ -17,12 +20,23 @@ export function ScenarioSelector() {
       totalRounds: scenarios.find((s) => s.id === scenarioId)?.rounds.length || 6,
     });
     await initializeStocks();
-    await resetAllPlayers(config.startingCash);
+    if (!continueMode) {
+      await resetAllPlayers(config.startingCash);
+    }
   };
 
   return (
     <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm space-y-3">
       <h2 className="text-lg font-bold">시나리오 선택</h2>
+      <label className="flex items-center gap-2 text-sm text-gray-600">
+        <input
+          type="checkbox"
+          checked={continueMode}
+          onChange={(e) => setContinueMode(e.target.checked)}
+          className="rounded"
+        />
+        이전 자산 이어서 시작
+      </label>
       <div className="space-y-2">
         {scenarios.map((s) => (
           <button

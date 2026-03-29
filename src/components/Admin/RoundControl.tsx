@@ -1,15 +1,16 @@
 import { useGameStore } from '@/store/gameStore';
 import { useStockStore } from '@/store/stockStore';
 import { usePlayerStore } from '@/store/playerStore';
+import { useScenarioStore } from '@/store/scenarioStore';
 import { Button } from '@/components/UI/Button';
 import { Badge } from '@/components/UI/Badge';
-import { scenarios } from '@/data/scenarios';
 
 export function RoundControl() {
   const { config, startRound, endRound, nextRound, revealNextHint, setHints, hints, resetCurrentRound } = useGameStore();
   const { applyPriceChanges } = useStockStore();
-  const { recalculateAllAssets } = usePlayerStore();
+  const { recalculateAllAssets, addAllowanceToAll } = usePlayerStore();
   const { stocks } = useStockStore();
+  const { scenarios } = useScenarioStore();
 
   const scenario = scenarios.find((s) => s.id === config.scenarioId);
   const currentScenarioRound = scenario?.rounds.find((r) => r.round === config.currentRound);
@@ -32,6 +33,9 @@ export function RoundControl() {
   };
 
   const handleStartRound = async () => {
+    if (config.roundAllowance > 0) {
+      await addAllowanceToAll(config.roundAllowance);
+    }
     await startRound();
     if (nextScenarioRound) {
       await setHints({
