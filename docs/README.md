@@ -6,11 +6,20 @@
 | **ARCHITECTURE.md** | 기술 아키텍처 (파일 구조, 스토어, 타입, 데이터 흐름, 설계 결정) | 개발자 |
 | **OPERATION-GUIDE.md** | 운영 가이드 (구현 기능 목록, 관리자/학생 행동 가이드, 트러블슈팅) | 교사(운영자) + 개발자 |
 | **CHAT-LOG-ARCHIVE.md** | 기획 대화 요약 아카이브 (참고용) | 필요 시 참고 |
-| **addRequirement.md** | 추가 요구사항 메모 (기획 리뷰에서 나온 피드백) | 개발 시 참고 |
+| **MANUAL-STUDENT.md** | 학생 사용 매뉴얼 (로그인, 거래, 거래소, 포트폴리오) | 학생 |
+| **MANUAL-ADMIN.md** | 관리자 사용 매뉴얼 (설정, 콘텐츠 입력, 라운드 운영) | 교사(관리자) |
+| **TODO.md** | 업무 체크리스트 (전체 진행 상황 추적) | 개발자 + 기획자 |
+| **REQUIREMENTS-ANALYSIS.md** | 요구사항 상세 분석서 (기술 영향도, 설계 고려사항) | 개발자 |
+| **addRequirement.md** | 기획 리뷰 원본 메모 (아카이브) | 필요 시 참고 |
 
 ## 문서 읽는 순서
 
-1. **PROJECT-SPEC.md** - 프로젝트가 무엇인지, 왜 만드는지 이해
-2. **ARCHITECTURE.md** - 코드가 어떻게 구성되어 있는지 파악
-3. **OPERATION-GUIDE.md** - 실제 수업에서 어떻게 운영하는지 확인
-4. **addRequirement.md** - 앞으로 개발해야 할 기능 확인
+**학생**: `MANUAL-STUDENT.md`만 읽으면 됩니다.
+
+**교사(관리자)**: `MANUAL-ADMIN.md`를 읽고 수업을 준비하세요.
+
+**개발자**:
+1. **TODO.md** - 현재 진행 상황 + 남은 작업 한눈에 확인
+2. **PROJECT-SPEC.md** - 프로젝트가 무엇인지, 왜 만드는지 이해
+3. **ARCHITECTURE.md** - 코드가 어떻게 구성되어 있는지 파악
+4. **REQUIREMENTS-ANALYSIS.md** - 특정 기능 구현 시 상세 분석 참고
