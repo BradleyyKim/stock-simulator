@@ -21,7 +21,7 @@ export function AdminView() {
   const [showPlayerSetup, setShowPlayerSetup] = useState(false);
   const [playerInput, setPlayerInput] = useState('');
   const [adminTab, setAdminTab] = useState<'operation' | 'content' | 'settings'>('operation');
-  const { initializePlayers } = usePlayerStore();
+  const { addPlayers, resetAllPlayers, players } = usePlayerStore();
   const { config } = useGameStore();
   const navigate = useNavigate();
 
@@ -34,15 +34,21 @@ export function AdminView() {
     }
   };
 
-  const handleInitPlayers = async () => {
+  const handleAddPlayers = async () => {
     const lines = playerInput.trim().split('\n').filter(Boolean);
     const playerList = lines.map((line) => {
       const [name, pin] = line.split(',').map((s) => s.trim());
       return { name, pin: pin || '0000' };
     });
-    await initializePlayers(playerList);
+    if (playerList.length === 0) return;
+    await addPlayers(playerList, config.startingCash);
     setShowPlayerSetup(false);
     setPlayerInput('');
+  };
+
+  const handleResetAll = async () => {
+    if (!window.confirm('정말 전체 학생 데이터를 초기화하시겠습니까?\n현금, 보유종목, 자산 기록이 모두 리셋됩니다.')) return;
+    await resetAllPlayers(config.startingCash);
   };
 
   if (!authenticated) {
@@ -128,17 +134,23 @@ export function AdminView() {
         {/* Player Setup */}
         {showPlayerSetup && (
           <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm mb-6">
-            <h2 className="text-lg font-bold mb-3">학생 등록</h2>
-            <p className="text-sm text-gray-500 mb-2">한 줄에 하나씩: 이름, 비밀번호(4자리)</p>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">학생 추가</h2>
+              <span className="text-xs text-gray-400">현재 {Object.keys(players).length}명 등록됨</span>
+            </div>
+            <p className="text-sm text-gray-500 mb-2">한 줄에 하나씩: 이름, 비밀번호(4자리) — 기존 학생은 유지됩니다</p>
             <textarea
               value={playerInput}
               onChange={(e) => setPlayerInput(e.target.value)}
               placeholder={`홍길동, 1234\n김철수, 5678\n이영희, 9012`}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm h-40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <Button onClick={handleInitPlayers} className="mt-3">
-              학생 등록하기
-            </Button>
+            <div className="flex gap-2 mt-3">
+              <Button onClick={handleAddPlayers}>학생 추가하기</Button>
+              <Button variant="danger" size="sm" onClick={handleResetAll}>
+                전체 자산 초기화
+              </Button>
+            </div>
           </div>
         )}
 

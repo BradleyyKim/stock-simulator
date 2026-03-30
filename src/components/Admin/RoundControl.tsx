@@ -8,7 +8,7 @@ import { Badge } from '@/components/UI/Badge';
 export function RoundControl() {
   const { config, startRound, endRound, nextRound, revealNextHint, setHints, hints, resetCurrentRound } = useGameStore();
   const { applyPriceChanges } = useStockStore();
-  const { recalculateAllAssets, addAllowanceToAll } = usePlayerStore();
+  const { recalculateAllAssets } = usePlayerStore();
   const { stocks } = useStockStore();
   const { scenarios } = useScenarioStore();
 
@@ -33,9 +33,6 @@ export function RoundControl() {
   };
 
   const handleStartRound = async () => {
-    if (config.roundAllowance > 0) {
-      await addAllowanceToAll(config.roundAllowance);
-    }
     await startRound();
     if (nextScenarioRound) {
       await setHints({

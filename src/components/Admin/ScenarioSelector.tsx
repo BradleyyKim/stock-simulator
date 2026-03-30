@@ -8,7 +8,7 @@ import { Button } from '@/components/UI/Button';
 export function ScenarioSelector() {
   const { config, updateConfig } = useGameStore();
   const { initializeStocks } = useStockStore();
-  const { resetAllPlayers } = usePlayerStore();
+  const { resetAllPlayers, addAllowanceToAll } = usePlayerStore();
   const { scenarios } = useScenarioStore();
   const [continueMode, setContinueMode] = useState(false);
 
@@ -22,6 +22,9 @@ export function ScenarioSelector() {
     await initializeStocks();
     if (!continueMode) {
       await resetAllPlayers(config.startingCash);
+    }
+    if (config.roundAllowance > 0) {
+      await addAllowanceToAll(config.roundAllowance);
     }
   };
 

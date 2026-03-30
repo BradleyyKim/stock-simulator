@@ -50,14 +50,14 @@ export function GameSettings() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">라운드 용돈 (원)</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">시나리오 용돈 (원)</label>
           <input
             type="number"
             value={form.roundAllowance}
             onChange={(e) => setForm({ ...form, roundAllowance: Number(e.target.value) })}
             className={inputClass}
           />
-          <p className="text-[10px] text-gray-400 mt-0.5">0이면 용돈 없음</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">시나리오 시작 시 1회 지급. 0이면 미지급</p>
         </div>
       </div>
 

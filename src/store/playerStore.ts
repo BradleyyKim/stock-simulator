@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ref, onValue, update, set as fbSet, get as fbGet } from 'firebase/database';
+import { ref, onValue, update, get as fbGet, remove } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import type { Player } from '@/types';
 
@@ -10,7 +10,10 @@ interface PlayerState {
   subscribe: () => () => void;
   login: (name: string, pin: string) => Promise<boolean>;
   logout: () => void;
-  initializePlayers: (playerList: { name: string; pin: string }[]) => Promise<void>;
+  addPlayers: (playerList: { name: string; pin: string }[], startingCash: number) => Promise<void>;
+  updatePlayer: (playerId: string, data: Partial<Pick<Player, 'name' | 'pinLast4'>>) => Promise<void>;
+  removePlayer: (playerId: string) => Promise<void>;
+  setPlayerCash: (playerId: string, newCash: number) => Promise<void>;
   updatePlayerCash: (playerId: string, amount: number) => Promise<void>;
   updatePlayerHolding: (playerId: string, stockId: string, quantityDelta: number) => Promise<void>;
   recalculateTotalAssets: (playerId: string, stockPrices: Record<string, number>) => Promise<void>;
@@ -36,7 +39,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
           set({ currentPlayer: data[current.id] });
         }
       } else {
-        set({ isLoading: false });
+        set({ players: {}, isLoading: false });
       }
     });
     return unsub;
@@ -66,22 +69,49 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     set({ currentPlayer: null });
   },
 
-  initializePlayers: async (playerList) => {
-    const playersData: Record<string, Player> = {};
+  addPlayers: async (playerList, startingCash) => {
+    const { players } = get();
+    const existingIds = Object.keys(players);
+    const maxNum = existingIds.reduce((max, id) => {
+      const num = parseInt(id.replace('player-', ''));
+      return isNaN(num) ? max : Math.max(max, num);
+    }, 0);
+
+    const updates: Record<string, unknown> = {};
     playerList.forEach((p, i) => {
-      const id = `player-${i + 1}`;
-      playersData[id] = {
+      const id = `player-${maxNum + i + 1}`;
+      updates[`players/${id}`] = {
         id,
         name: p.name,
         pinLast4: p.pin,
-        cash: 100000,
+        cash: startingCash,
         holdings: {},
-        totalAssets: 100000,
-        assetHistory: [{ round: 0, totalAssets: 100000 }],
+        totalAssets: startingCash,
+        assetHistory: [{ round: 0, totalAssets: startingCash }],
         isOnline: false,
       };
     });
-    await fbSet(ref(db, 'players'), playersData);
+    await update(ref(db), updates);
+  },
+
+  updatePlayer: async (playerId, data) => {
+    const player = get().players[playerId];
+    if (!player) return;
+    await update(ref(db, `players/${playerId}`), data);
+  },
+
+  removePlayer: async (playerId) => {
+    await remove(ref(db, `players/${playerId}`));
+  },
+
+  setPlayerCash: async (playerId, newCash) => {
+    const player = get().players[playerId];
+    if (!player) return;
+    const diff = newCash - player.cash;
+    await update(ref(db, `players/${playerId}`), {
+      cash: newCash,
+      totalAssets: player.totalAssets + diff,
+    });
   },
 
   updatePlayerCash: async (playerId, amount) => {
