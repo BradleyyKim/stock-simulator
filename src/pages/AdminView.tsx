@@ -13,9 +13,12 @@ import { ContentEditor } from '@/components/Admin/ContentEditor';
 import { Button } from '@/components/UI/Button';
 
 const ADMIN_PIN = '930919';
+const ADMIN_AUTH_KEY = 'admin_auth';
 
 export function AdminView() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(
+    () => localStorage.getItem(ADMIN_AUTH_KEY) === ADMIN_PIN
+  );
   const [adminPin, setAdminPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [showPlayerSetup, setShowPlayerSetup] = useState(false);
@@ -27,11 +30,18 @@ export function AdminView() {
 
   const handleAdminLogin = () => {
     if (adminPin === ADMIN_PIN) {
+      localStorage.setItem(ADMIN_AUTH_KEY, ADMIN_PIN);
       setAuthenticated(true);
       setPinError('');
     } else {
       setPinError('비밀번호가 일치하지 않습니다.');
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(ADMIN_AUTH_KEY);
+    setAuthenticated(false);
+    setAdminPin('');
   };
 
   const handleAddPlayers = async () => {
@@ -98,6 +108,9 @@ export function AdminView() {
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
               학생 화면
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              로그아웃
             </Button>
           </div>
         </div>
