@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { usePlayerStore } from '@/store/playerStore';
 import { useStockStore } from '@/store/stockStore';
 import { formatCurrency } from '@/utils/format';
@@ -5,10 +6,12 @@ import { Card } from '@/components/UI/Card';
 import { cn } from '@/utils/cn';
 import { SECTOR_COLORS, SECTOR_LABELS, SECTOR_ICONS } from '@/data/scenarios';
 import { AssetChart } from '@/components/Student/AssetChart';
+import { OrderForm } from '@/components/Student/OrderForm';
 
 export function Portfolio() {
   const { currentPlayer } = usePlayerStore();
   const { stocks } = useStockStore();
+  const [selectedStockId, setSelectedStockId] = useState<string | null>(null);
 
   if (!currentPlayer) return null;
 
@@ -55,7 +58,11 @@ export function Portfolio() {
               const value = qty * stock.currentPrice;
 
               return (
-                <div key={stockId} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                <button
+                  key={stockId}
+                  onClick={() => setSelectedStockId(stockId)}
+                  className="w-full flex items-center justify-between py-2 border-b border-gray-50 last:border-0 hover:bg-gray-50 active:scale-[0.99] transition-all rounded-lg px-1 -mx-1"
+                >
                   <div className="flex items-center gap-3">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white"
@@ -63,7 +70,7 @@ export function Portfolio() {
                     >
                       {(() => { const Icon = SECTOR_ICONS[stock.sector]; return Icon ? <Icon size={16} /> : stock.name[0]; })()}
                     </div>
-                    <div>
+                    <div className="text-left">
                       <p className="font-medium text-gray-800">{SECTOR_LABELS[stock.sector]}</p>
                       <p className="text-xs text-gray-400">{qty}주 보유</p>
                     </div>
@@ -74,12 +81,14 @@ export function Portfolio() {
                       현재가 {formatCurrency(stock.currentPrice)}
                     </p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
         )}
       </Card>
+
+      <OrderForm stockId={selectedStockId} onClose={() => setSelectedStockId(null)} />
     </div>
   );
 }
