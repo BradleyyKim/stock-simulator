@@ -46,8 +46,8 @@ export function StudentStatusList() {
     return total;
   };
 
-  const sorted = Object.values(players)
-    .map((p) => ({ ...p, totalAssets: calcTotalAssets(p) }))
+  const sorted = Object.entries(players)
+    .map(([id, p]) => ({ ...p, id, totalAssets: calcTotalAssets(p) }))
     .sort((a, b) => b.totalAssets - a.totalAssets);
 
   const handleEditClick = (player: typeof sorted[number]) => {
@@ -123,9 +123,12 @@ export function StudentStatusList() {
 
   const handleRemove = async () => {
     if (!editTarget) return;
-    if (window.confirm(`${editTarget.name} 학생을 정말 삭제하시겠습니까?\n모든 데이터가 삭제됩니다.`)) {
+    if (!window.confirm(`${editTarget.name} 학생을 정말 삭제하시겠습니까?\n모든 데이터가 삭제됩니다.`)) return;
+    try {
       await removePlayer(editTarget.id);
       setEditTarget(null);
+    } catch (e) {
+      alert(`삭제 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
     }
   };
 

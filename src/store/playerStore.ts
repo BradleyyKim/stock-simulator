@@ -101,6 +101,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   removePlayer: async (playerId) => {
+    if (!playerId) throw new Error('학생 ID가 비어있어 삭제할 수 없습니다.');
     await remove(ref(db, `players/${playerId}`));
   },
 
