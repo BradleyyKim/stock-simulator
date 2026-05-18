@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref } from 'firebase/database';
+import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,6 +14,29 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
+export const auth = getAuth(app);
+
+export const ensureAnonymousAuth = () =>
+  new Promise<void>((resolve, reject) => {
+    const unsub = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (user) {
+          unsub();
+          resolve();
+        } else {
+          signInAnonymously(auth).catch((err) => {
+            unsub();
+            reject(err);
+          });
+        }
+      },
+      (err) => {
+        unsub();
+        reject(err);
+      }
+    );
+  });
 
 export const dbRefs = {
   game: () => ref(db, 'game'),
